@@ -1,6 +1,26 @@
+<!--    
+    ================================================================================================
+    
+    Copyright (c) 2026 Ilya Snegov
+    
+    Dedicated to the public domain under the Creative Commons
+    CC0 1.0 Universal Public Domain Dedication (the "Dedication").
+    You may obtain a copy of the Dedication at
+    
+    https://creativecommons.org/publicdomain/zero/1.0/legalcode.en
+
+    ================================================================================================
+    docs/03-domain-model.md
+    ================================================================================================
+-->
+
 # III. Domain Model
 
 > *This document defines the Domain Model of the Human Pose Estimation Service: the persistent entities it produces together with their schemas, their content-addressed storage, and the transit messages that carry work to the workers and results back.*
+
+<!--    
+    ================================================================================================
+-->
 
 ## Domain Entities
 
@@ -23,9 +43,17 @@ The first two groups are paired: every payload has exactly one metadata record t
 | Job input | Message Broker | The task descriptor enqueued for a worker: job identity plus the references and parameters needed to run it — never the payload bytes themselves. |
 | Job output | Result Backend | The worker's completion signal: outcome (success or failure) and references to the artifacts it wrote — read back to resolve the job's final state, not the artifact bytes themselves. |
 
+<!--    
+    ================================================================================================
+-->
+
 ## Persistent Entities
 
 The three persistent entities form a linear chain of ownership: a `Video` is the root, an `Estimation` derives from one `Video` (`Estimation.video_id`), and a `Visualization` derives from one `Estimation` (`Visualization.estimation_id`). Beyond the fields they share — an `id`, a `storage_key` resolving to the payload in object storage, an optional `description`, and a UTC `created_at` — each entity records the parameters that produced its payload. Deletion cascades along the chain: removing a `Video` removes its derived `Estimation` and `Visualization` records, and releases the objects they index in object storage — so a derived artifact never outlives its source, and the system leaves behind neither orphaned rows nor dangling blobs.
+
+<!--    
+    ================================================================================================
+-->
 
 **`Video` Entity**
 
@@ -39,6 +67,10 @@ The three persistent entities form a linear chain of ownership: a `Video` is the
 | `duration_seconds` | `float` | Total playback duration in seconds. |
 | `description` | `str \| None` | Optional human-readable label for operational identification. |
 | `created_at` | `datetime` | Timezone-aware creation timestamp in UTC. |
+
+<!--    
+    ================================================================================================
+-->
 
 **`Estimation` Entity**
 
@@ -54,6 +86,10 @@ The three persistent entities form a linear chain of ownership: a `Video` is the
 | `duration_seconds` | `float` | Total analyzed segment duration in seconds. |
 | `description` | `str \| None` | Optional human-readable label. |
 | `created_at` | `datetime` | Timezone-aware creation timestamp in UTC. |
+
+<!--    
+    ================================================================================================
+-->
 
 **`Visualization` Entity**
 
@@ -71,6 +107,10 @@ The three persistent entities form a linear chain of ownership: a `Video` is the
 | `description` | `str \| None` | Optional human-readable label. |
 | `created_at` | `datetime` | Timezone-aware creation timestamp in UTC. |
 
+<!--    
+    ================================================================================================
+-->
+
 ## Binary Payloads
 
 The three binary payloads live in object storage as a flat key->value mapping: the `storage_key` is the key, the artifact bytes are the value. Each key is a deterministic content hash — but what gets hashed differs by entity, and that difference is what makes deduplication work.
@@ -83,11 +123,19 @@ The three binary payloads live in object storage as a flat key->value mapping: t
 
 Because the key is derived *before* the work runs, the existence check (**NFR‑10**) is a single lookup: if the key is already present, the stored artifact is returned and the expensive estimation or rendering is skipped entirely.
 
+<!--    
+    ================================================================================================
+-->
+
 ### Transit Messages
 
 Unlike the persistent entities, the transit messages are never stored — they exist only in flight across a process boundary. There are two: a `JobInput` descriptor the service layer enqueues for a worker through the message broker, and a `JobOutput` the worker returns through the result backend on completion. Both carry only references and parameters, never payload bytes: the broker stays light, and the heavy artifacts move through object storage instead.
 
 The service layer assembles each `JobInput` by combining the client's request with values it resolves from existing SQL records — so a descriptor is self-contained, and a worker needs no further database lookup to start. Because there are two worker types, there are two input shapes.
+
+<!--    
+    ================================================================================================
+-->
 
 **`JobInput` — estimation task (Flow 2)**
 
@@ -100,6 +148,10 @@ The service layer assembles each `JobInput` by combining the client's request wi
 | `skip_start_seconds`, `duration_seconds` | client request | Temporal window of the video to analyze. |
 | `batch_size` | client request | Number of frames loaded and processed per batch (bounded streaming). |
 | `description` | client request | Optional human-readable label, carried through to the record. |
+
+<!--    
+    ================================================================================================
+-->
 
 **`JobInput` — visualization task (Flow 3)**
 
@@ -116,6 +168,10 @@ The service layer assembles each `JobInput` by combining the client's request wi
 
 The visualization descriptor carries a detail worth singling out: its preprocessing parameters (`target_width` through `duration_seconds`) are resolved **from the `Estimation` record, not taken from the client**. Rendering overlays requires decoding the source video into exactly the same frames the inference pass saw — same resolution, same sampling rate, same temporal window — or the 2D keypoints would land on misaligned frames. Pulling these values from the stored estimation guarantees the renderer reproduces the inference pass's frame stream rather than trusting the client to restate it consistently.
 
+<!--    
+    ================================================================================================
+-->
+
 **`JobOutput` — both task types**
 
 | Field | Description |
@@ -125,6 +181,14 @@ The visualization descriptor carries a detail worth singling out: its preprocess
 
 The output is deliberately minimal — a pointer, not a payload. The worker does the heavy lifting on its own side: it writes the artifact to object storage and its metadata row to SQL, then returns only *where the result lives* — its type and id. The service layer reads this off the result backend, updates the job's status in SQL accordingly, and the polling client resolves the result from that id. This keeps the result backend as light as the broker: it shuttles a locator, while object storage and SQL hold everything substantial.
 
+<!--    
+    ================================================================================================
+-->
+
 ## Next Steps
 
 With the domain entities, their storage layout, and the messages that move between components all defined, the data the system operates on now has stable schemas. What remains is the request lifecycle of each endpoint: the ordered sequence of internal steps the server performs between accepting a request and answering it.
+
+<!--    
+    ================================================================================================
+-->

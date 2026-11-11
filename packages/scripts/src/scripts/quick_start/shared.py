@@ -1,18 +1,17 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/scripts/src/scripts/quick_start/shared.py
+# ==================================================================================================
+
 import sys
 import time
 import subprocess
@@ -23,6 +22,7 @@ import webbrowser
 import requests
 from dotenv import load_dotenv
 
+# ==================================================================================================
 
 class ApiUrls(NamedTuple):
     """
@@ -59,6 +59,7 @@ class ApiUrls(NamedTuple):
     task_url: str | None
     video_url: str | None
 
+# ==================================================================================================
 
 def run(cmd: list[str], verbose: bool = True) -> None:
     """
@@ -82,6 +83,7 @@ def run(cmd: list[str], verbose: bool = True) -> None:
     if result.returncode != 0:
         sys.exit(result.returncode)
 
+# ==================================================================================================
 
 def terminal(cmd: list[str]) -> None:
     """
@@ -95,6 +97,7 @@ def terminal(cmd: list[str]) -> None:
     print(f"\n>>> gnome-terminal: {' '.join(cmd)}")
     subprocess.Popen(["gnome-terminal", "--", "bash", "-c", " ".join(cmd)])
 
+# ==================================================================================================
 
 def get_api_urls() -> ApiUrls:
     """
@@ -126,6 +129,7 @@ def get_api_urls() -> ApiUrls:
         video_url=None,
     )
 
+# ==================================================================================================
 
 def add_video_url(urls: ApiUrls, video_id: str) -> ApiUrls:
     """
@@ -146,6 +150,7 @@ def add_video_url(urls: ApiUrls, video_id: str) -> ApiUrls:
     video_url = f"{urls.base_url}/videos/{video_id}/"
     return urls._replace(video_url=video_url)
 
+# ==================================================================================================
 
 def add_task_url(urls: ApiUrls, task_id: str) -> ApiUrls:
     """
@@ -166,6 +171,7 @@ def add_task_url(urls: ApiUrls, task_id: str) -> ApiUrls:
     task_url = f"{urls.base_url}/tasks/{task_id}/"
     return urls._replace(task_url=task_url)
 
+# ==================================================================================================
 
 def start_infrastructure(deploy: bool = False, verbose: bool = True) -> None:
     """
@@ -203,6 +209,7 @@ def start_infrastructure(deploy: bool = False, verbose: bool = True) -> None:
         time.sleep(10)
         run(["just", "db-migrate"], verbose=verbose)
 
+# ==================================================================================================
 
 def wait_for_server(urls: ApiUrls, retries: int = 20, interval: int = 10) -> bool:
     """
@@ -234,6 +241,7 @@ def wait_for_server(urls: ApiUrls, retries: int = 20, interval: int = 10) -> boo
         time.sleep(interval)
     return False
 
+# ==================================================================================================
 
 def check_health_and_open_docs(urls: ApiUrls) -> bool:
     """
@@ -257,3 +265,5 @@ def check_health_and_open_docs(urls: ApiUrls) -> bool:
     else:
         print(f"[warn] server did not respond in time, open manually: {urls.docs_url}")
         return False
+
+# ==================================================================================================

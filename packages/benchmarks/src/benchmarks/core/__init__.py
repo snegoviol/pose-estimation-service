@@ -1,18 +1,17 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/benchmarks/src/benchmarks/core/__init__.py
+# ==================================================================================================
+
 import os
 import subprocess
 import argparse
@@ -26,6 +25,7 @@ import asyncio
 import httpx
 from scripts.quick_start.shared import run, ApiUrls
 
+# ==================================================================================================
 
 def parse_benchmark_args() -> argparse.Namespace:
     """
@@ -147,6 +147,7 @@ def parse_benchmark_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
+# ==================================================================================================
 
 def get_cpu_name() -> str:
     """
@@ -167,6 +168,7 @@ def get_cpu_name() -> str:
         
     return "Unknown CPU"
 
+# ==================================================================================================
 
 class CudaEnvInfo(NamedTuple):
     """
@@ -185,6 +187,7 @@ class CudaEnvInfo(NamedTuple):
     torch_version: str
     cuda_version: str
 
+# ==================================================================================================
 
 def get_cuda_env() -> CudaEnvInfo:
     """
@@ -217,6 +220,7 @@ def get_cuda_env() -> CudaEnvInfo:
             cuda_version="Unknown"
         )
 
+# ==================================================================================================
 
 def start_services(num_default: int = 1, num_inference: int = 1, verbose: bool = True) -> list[subprocess.Popen]:
     """
@@ -258,6 +262,7 @@ def start_services(num_default: int = 1, num_inference: int = 1, verbose: bool =
         
     return processes
 
+# ==================================================================================================
 
 def stop_services(processes: list, verbose: bool = True) -> None:
     """
@@ -281,6 +286,7 @@ def stop_services(processes: list, verbose: bool = True) -> None:
             
     run(["just", "docker-local-down"], verbose=verbose)
 
+# ==================================================================================================
 
 class VideoMetadata(NamedTuple):
     """
@@ -302,6 +308,7 @@ class VideoMetadata(NamedTuple):
     fps: float
     duration_seconds: float
 
+# ==================================================================================================
 
 def get_video_metadata(urls: ApiUrls) -> VideoMetadata:
     """
@@ -344,6 +351,7 @@ def get_video_metadata(urls: ApiUrls) -> VideoMetadata:
         duration_seconds=float(data["duration_seconds"])
     )
 
+# ==================================================================================================
 
 class IngestResult(NamedTuple):
     """
@@ -362,6 +370,7 @@ class IngestResult(NamedTuple):
     latency_ms: float
     error: str | None
 
+# ==================================================================================================
 
 class TaskResult(NamedTuple):
     """
@@ -383,6 +392,7 @@ class TaskResult(NamedTuple):
     latency_ms: float
     error_msg: str | None
 
+# ==================================================================================================
 
 async def ingest_video_async(
     client: httpx.AsyncClient,
@@ -429,6 +439,7 @@ async def ingest_video_async(
         latency_ms = (time.perf_counter() - start_time) * 1000
         return IngestResult(video_id=None, latency_ms=latency_ms, error=str(e))
 
+# ==================================================================================================
 
 async def submit_and_poll_task_async(
     client: httpx.AsyncClient,
@@ -512,3 +523,5 @@ async def submit_and_poll_task_async(
     except Exception as e:
         duration_ms = (time.perf_counter() - start_time) * 1000
         return TaskResult(success=False, resource_id=None, latency_ms=duration_ms, error_msg=str(e))
+
+# ==================================================================================================

@@ -1,18 +1,17 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/server/src/server/modules/estimation/get/routes.py
+# ==================================================================================================
+
 from fastapi import status, Path, Query, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from postgres_lib import get_async_db_session, EstimationRepository
@@ -20,6 +19,7 @@ from ..schemas import EstimationResponse
 from ..router import estimation_router
 from ..utils import get_estimation_or_404
 
+# ==================================================================================================
 
 @estimation_router.get(
     "/",
@@ -56,6 +56,7 @@ async def list_estimations_route(
     estimations = await EstimationRepository.get_all(session, skip=skip, limit=limit)
     return [EstimationResponse.model_validate(est) for est in estimations]
 
+# ==================================================================================================
 
 @estimation_router.get(
     "/{estimation_id}/",
@@ -93,3 +94,5 @@ async def get_estimation_route(
     """
     estimation = await get_estimation_or_404(session, estimation_id)
     return EstimationResponse.model_validate(estimation)
+
+# ==================================================================================================

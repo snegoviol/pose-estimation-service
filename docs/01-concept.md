@@ -1,6 +1,26 @@
+<!--    
+    ================================================================================================
+    
+    Copyright (c) 2026 Ilya Snegov
+    
+    Dedicated to the public domain under the Creative Commons
+    CC0 1.0 Universal Public Domain Dedication (the "Dedication").
+    You may obtain a copy of the Dedication at
+    
+    https://creativecommons.org/publicdomain/zero/1.0/legalcode.en
+
+    ================================================================================================
+    docs/01-concept.md
+    ================================================================================================
+-->
+
 # I. Human Pose Estimation Service: Conceptual Overview
 
 > *This document describes the high-level conceptual architecture of the Human Pose Estimation Service.*
+
+<!--    
+    ================================================================================================
+-->
 
 ## Task
 
@@ -34,6 +54,10 @@ When I started this project, I was given a concrete objective: expose the existi
 | **NFR‑11** | Each component must operate with the minimum privileges its function requires, so that a leaked or compromised credential exposes only the operations it was granted — not the underlying infrastructure as a whole. |
 | **NFR‑12** | Client-facing authentication, authorization, and rate limiting are outside the scope of this system. |
 
+<!--    
+    ================================================================================================
+-->
+
 ## First Decisions
 
 Based on the requirements above, I made the following foundational design decisions. Each one is traced back to the requirement that motivates it.
@@ -49,6 +73,10 @@ Based on the requirements above, I made the following foundational design decisi
 | **Content-addressed keys with a pre-creation existence check** | To satisfy **NFR‑10**, every resource is identified by a deterministic key derived from its content: ingestion is keyed on the content hash of the uploaded file, while estimation and annotation are keyed on a canonical hash of their input parameters. Before creating a record, the service checks whether a matching key already exists; on a match it returns the existing artifact (**FR‑6**) immediately, without re-running estimation or rendering and without writing a duplicate. |
 | **Two persistence backends: a SQL database and S3-compatible object storage** | The content-addressed scheme above needs somewhere to keep each hash and the links it implies — a source video, the estimations derived from it, an annotation — together with per-request metadata. These could be attached as per-object metadata on the blobs themselves, co-located in object storage. But that metadata is fixed at upload time and immutable thereafter. Also it is addressable only by the object's own key: there is no way to query across objects or to join a request to its artifacts without listing the whole bucket and inspecting each entry one by one. The existence checks of **NFR‑10** and any lookup spanning related records would degrade into exactly that listing-and-scanning. <br><br>The system therefore splits persistence by the role of the data rather than by what produces it. All payload files — the uploaded source video, the pose-estimation results, and the rendered annotated video (**FR‑2**, **FR‑3**, **FR‑5**) — are written to S3-compatible object storage. The SQL database holds no payloads at all: only the structured layer that makes those blobs findable — content-hash keys, per-request metadata, and references to the corresponding S3 objects. The records are relational and fixed-schema, queried by key and by relationship, where indexed lookups and referential integrity matter more than the horizontal scale and schema-flexibility a NoSQL store would trade them for. Together the two backends give every produced output a durable home (**FR‑6**): the SQL index resolves a request to its artifacts, and object storage delivers them. |
 
+<!--    
+    ================================================================================================
+-->
+
 ## Communication Flow
 
 With the requirements and foundational decisions established, I translated them into a concrete communication graph. Because the API is a set of resource-oriented endpoints rather than one catch-all operation, the interaction decomposes into three independent exchanges — uploading a video, requesting its pose estimations, and requesting its annotation — each acting on its own resource and sharing the same boundary discipline: validate, content-address, check the stores before running any computation.
@@ -61,6 +89,10 @@ With the requirements and foundational decisions established, I translated them 
 | **Service Layer** | Single boundary component | Validates input, deduplicates by content hash, runs pose estimation, renders annotations, orchestrates persistence, and delivers responses. |
 | **SQL Database** | Structured-data store | Stores the content-hash index, per-request metadata, and references to the artifacts in object storage. |
 | **Object Storage (S3-compatible)** | Binary-artifact store | Stores all payload files: the source video, the pose-estimation results, and the rendered annotated video. |
+
+<!--    
+    ================================================================================================
+-->
 
 ### Flow 1 — Video upload
 
@@ -88,6 +120,10 @@ sequenceDiagram
 
     S-->>C: Video reference
 ```
+
+<!--    
+    ================================================================================================
+-->
 
 ### Flow 2 — Pose estimation request
 
@@ -118,6 +154,10 @@ sequenceDiagram
 
     S-->>C: Estimation result file
 ```
+
+<!--    
+    ================================================================================================
+-->
 
 ### Flow 3 — Annotation request
 
@@ -151,6 +191,10 @@ sequenceDiagram
     S-->>C: Annotated video file
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ## Next Steps
 
 The system's design is now fully specified. The natural next move would be to refine it downward — formalizing the domain model, or pinning down each endpoint's request and response schemas. But that detail would be premature: the blueprint above assumes an execution model that breaks down under load.
@@ -158,3 +202,7 @@ The system's design is now fully specified. The natural next move would be to re
 All three operations carry CPU-bound work inside the request–response cycle, differing only in how long they hold an execution context. Video upload (Flow 1) is dominated by network IO, but it is not purely IO-bound: validation and content hashing read through the entire payload on the CPU — bounded by file size, modest next to inference, yet still real CPU time spent before the response can return. Pose estimation (Flow 2) and annotation rendering (Flow 3) sit at the far end of the same spectrum — heavy, long-running, and CPU-bound by nature. In every case the server execution context stays occupied for the full duration of the work, and a simple async interface cannot help: the cost is real CPU time spent per request, not idle waiting that could be yielded. So under real load execution contexts are exhausted — fastest by Flows 2 and 3, but pushed there by Flow 1's volume as well — requests queue, and latency compounds until the service stalls. That is the direct opposite of the concurrent access required by **NFR‑2**.
 
 So the real next step is not more detail, but a decision on the concurrency strategy.
+
+<!--    
+    ================================================================================================
+-->

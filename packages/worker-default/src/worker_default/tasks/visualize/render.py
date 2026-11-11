@@ -1,18 +1,17 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/worker-default/src/worker_default/tasks/visualize/render.py
+# ==================================================================================================
+
 import cv2
 import numpy as np
 from ensam3d_inference import FramePoseResult
@@ -20,6 +19,7 @@ from ensam3d_inference.preprocessor.detector.types import RGBFrame
 from ensam3d_inference.examples.keypoints import SKELETON, KEYPOINTS
 from .config import visualizer_config
 
+# ==================================================================================================
 
 def _draw_bbox(image: RGBFrame, bbox: np.ndarray) -> None:
     """
@@ -41,6 +41,7 @@ def _draw_bbox(image: RGBFrame, bbox: np.ndarray) -> None:
         visualizer_config.line_thickness,
     )
 
+# ==================================================================================================
 
 def _draw_bbox_confidence(image: RGBFrame, bbox: np.ndarray, confidence: float) -> None:
     """
@@ -67,6 +68,7 @@ def _draw_bbox_confidence(image: RGBFrame, bbox: np.ndarray, confidence: float) 
         visualizer_config.font_thickness,
     )
 
+# ==================================================================================================
 
 def _draw_keypoints(image: RGBFrame, keypoints: np.ndarray, width: int, height: int) -> None:
     """
@@ -109,6 +111,7 @@ def _draw_keypoints(image: RGBFrame, keypoints: np.ndarray, width: int, height: 
                 -1,
             )
 
+# ==================================================================================================
 
 def _draw_skeleton(image: RGBFrame, keypoints: np.ndarray, width: int, height: int) -> None:
     """
@@ -143,6 +146,7 @@ def _draw_skeleton(image: RGBFrame, keypoints: np.ndarray, width: int, height: i
                 visualizer_config.line_thickness,
             )
 
+# ==================================================================================================
 
 def render_frame(
     frame: RGBFrame,
@@ -212,3 +216,5 @@ def render_frame(
             _draw_skeleton(output, kp_np, width, height)
 
     return output
+
+# ==================================================================================================

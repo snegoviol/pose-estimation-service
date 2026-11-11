@@ -1,6 +1,41 @@
+<!--    
+    ================================================================================================
+    
+    Copyright (c) 2026 Ilya Snegov
+    
+    Dedicated to the public domain under the Creative Commons
+    CC0 1.0 Universal Public Domain Dedication (the "Dedication").
+    You may obtain a copy of the Dedication at
+    
+    https://creativecommons.org/publicdomain/zero/1.0/legalcode.en
+
+    ================================================================================================
+    README.md
+    ================================================================================================
+-->
+
 # Human Pose Estimation Service
 
-> *Production-oriented REST API service exposing [`ensam3d_inference`](https://github.com/Sierra-Arn/ensam3d-lib/tree/main/docs/ensam3d_inference) as a managed backend for distributed 3D human pose estimation, with video ingestion, GPU worker orchestration, annotated visualization rendering, and persistent artifact storage.*
+> *Production-oriented REST API service exposing `ensam3d_inference` as a managed backend for distributed 3D human pose estimation, with video ingestion, GPU worker orchestration, annotated visualization rendering, and persistent artifact storage.*
+
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](#license)
+[![License: CC0-1.0](https://img.shields.io/badge/License-CC0--1.0-blue.svg)](#license)
+
+> [!NOTE]  
+> This repository is one of two that form the foundation of my Bachelor's thesis on production-ready, scalable 3D human pose estimation. The system is split into two layers:
+>
+> | Repository | Focus |
+> | :--- | :--- |
+> | [**Enhanced SAM 3D Body Library**](https://github.com/snegoviol/ensam3d-lib) | Core inference engine: a high-throughput, production-ready reimplementation of the SAM 3D Body architecture. |
+> | [**Human Pose Estimation Service**](https://github.com/snegoviol/pose-estimation-service) <br>*(you are here)* | Distributed backend: REST API, GPU/CPU worker orchestration, and persistent artifact storage. |
+>
+> Since this work is part of a thesis, both repositories include detailed documentation: architectural justifications, C4 diagrams, and empirical benchmarks. These materials were also adapted for the thesis text.
+> - [Inference engine documentation](https://github.com/snegoviol/ensam3d-lib/blob/main/docs/ensam3d_inference/README.md)
+> - [Service documentation](docs/README.md)
+
+<!--    
+    ================================================================================================
+-->
 
 ## Performance Benchmark
 
@@ -32,9 +67,13 @@ End-to-end performance under concurrent load is summarized below using a paralle
 > **Want more details?**  
 > For the full technical documentation — including conceptual design, requirements, runtime concurrency, the domain model, per-endpoint request lifecycles, the dependency stack, project structure, and performance benchmarks — see [the documentation](./docs/README.md).
 
+<!--    
+    ================================================================================================
+-->
+
 ## Project Structure
 
-```bash
+```sh
 pose-estimation-service/
 ├── packages/               # Monorepo root: all independently deployable
 │   │                       # Python modules and shared libraries. Each
@@ -81,6 +120,10 @@ pose-estimation-service/
 │                           # engineering decisions, API design, codebase
 │                           # layout, and dependencies.
 │
+├── LICENSES/               # Full texts of all licenses used in the project.
+│
+├── LICENSE.txt             # Licensing overview: which license applies to which files.
+│
 ├── pixi.toml               # Pixi configuration defining feature-based
 │                           # dependency groups for server, workers, and
 │                           # ML inference.
@@ -94,44 +137,65 @@ pose-estimation-service/
                             # manages the pixi environment per recipe.
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ## Quick Start
 
 ### I. Prerequisites
 
-- [Pixi](https://pixi.sh/latest/) package manager.
-- [Docker and Docker Compose](https://docs.docker.com/engine/install/).
-- GNU/Linux-based system on `x86_64` architecture.
-- NVIDIA GPU with a driver that supports CUDA `>= 12.8`.
+| Component            | Requirement                               |
+| :------------------- | :---------------------------------------- |
+| **Operating System** | GNU/Linux-based system                    |
+| **Architecture**     | `x86_64`                                  |
+| **Package Manager**  | [`Pixi`](https://pixi.prefix.dev/latest/) |
+| **Container Tools**  | [Docker and Docker Compose](https://docs.docker.com/engine/install/) |
+| **GPU**              | NVIDIA GPU with a driver supporting CUDA `>= 12.8` |
 
 > **Note: on these prerequisites**  
-> These are not strict requirements but describe the environment used for development. The package can be set up in alternative environments with different package managers, operating systems, or GPU configurations if needed.
+> These are not strict requirements, but rather the baseline environment where the code is 
+guaranteed to run out of the box. Alternative setups are possible but may require manual 
+configuration.
 
 > **Note: on CUDA versions**  
-> The `>= 12.8` figure is a *driver* requirement, enforced through pixi's `system-requirements`. It was chosen because 12.8 was the default CUDA build shipped by PyTorch at the time development started (a plain `pip install torch` pulled the 12.8 build back then).
+> The `>= 12.8` constraint is enforced via Pixi's `system-requirements`, reflecting the default 
+PyTorch CUDA build at the time of development. Newer driver versions are fully supported.
 
-> **Note: the benchmarking scripts report**  
-> `CUDA Version: 12.6`. This is expected and not a mismatch: that value comes from `torch.version.cuda`, i.e. the CUDA version the PyTorch binary was *compiled against*, which is independent of the newer CUDA toolkit resolved into the environment. CUDA minor-version compatibility lets a 12.6 build run on any 12.x driver with the same major version.
+> **Note: the benchmarking and profiling scripts report**  
+> `CUDA Version: 12.6`. This is expected and not a mismatch: that value comes from `torch.version.cuda`, 
+i.e. the CUDA version the PyTorch binary was *compiled against*, which is independent of the newer CUDA 
+toolkit resolved into the environment. CUDA minor-version compatibility lets a 12.6 build run on 
+any 12.x driver with the same major version.
+
+<!--    
+    ================================================================================================
+-->
 
 ### II. Setup
 
 1. **Clone the repository**
 
-    ```bash
-    git clone git@github.com:Sierra-Arn/pose-estimation-service.git
+    ```sh
+    git clone https://github.com/snegoviol/pose-estimation-service.git
     cd pose-estimation-service
     ```
 
 2. **Install dependencies**
 
-    ```bash
+    ```sh
     pixi install
     ```
 
 3. **Activate environment**
 
-    ```bash
+    ```sh
     pixi shell
     ```
+
+<!--    
+    ================================================================================================
+-->
 
 ### III. Model Weights Access
 
@@ -141,7 +205,7 @@ To perform pose estimation, the service requires the `sam-3d-body-vith` model we
 2. Sign in with a Hugging Face account, request access to the repository, and wait for approval.
 3. Once access is granted, download the weights manually and place the downloaded `sam-3d-body-vith/` directory in the project root.
 
-    ```bash
+    ```sh
     # Expected structure after download:
     pose-estimation-service/
     ├── packages/ 
@@ -154,19 +218,23 @@ To perform pose estimation, the service requires the `sam-3d-body-vith` model we
     └── sam-3d-body-vith/
     ```
 
+<!--    
+    ================================================================================================
+-->
+
 ### IV. Launch
 
 Once the environment is activated and model weights are downloaded, the service can be launched in one of two modes depending on the deployment context.
 
 1. **Local mode** — infrastructure services run in Docker; the API server and workers run on the host machine directly.
 
-    ```bash
+    ```sh
     just quick-start-local
     ```
 
 2. **Deploy mode** — the full stack runs in Docker, including infrastructure, API server, and both worker processes.
 
-    ```bash
+    ```sh
     just quick-start-deploy
     ```
 
@@ -180,22 +248,40 @@ Whichever mode you choose, the launch script will automatically execute all nece
 > - [Local mode script](./packages/scripts/src/scripts/quick_start/local.py)
 > - [Deploy mode script](./packages/scripts/src/scripts/quick_start/deploy.py)
 
+<!--    
+    ================================================================================================
+-->
+
 ### V. Cleanup
 
 When you are done, shut down the running services depending on the active launch mode.
 
 1. **Local mode** — stop the API server and workers by terminating their terminal processes, then bring down the infrastructure containers.
 
-    ```bash
+    ```sh
     just docker-local-down
     ```
 
 2. **Deploy mode** — stop and remove all containers with a single command.
 
-    ```bash
+    ```sh
     just docker-deploy-down
     ```
 
+<!--    
+    ================================================================================================
+-->
+
 ## License
 
-This project is licensed under the [Apache License, Version 2.0](LICENSE).
+Each file in this repository is licensed under one of the following licenses:
+
+- [Apache License, Version 2.0](LICENSES/Apache-2.0.txt),
+- [Creative Commons CC0 1.0 Universal Public Domain Dedication](LICENSES/CC0-1.0.txt).
+
+The applicable license is stated in the header comment of each file. 
+See [LICENSE.txt](LICENSE.txt) for details.
+
+<!--    
+    ================================================================================================
+-->

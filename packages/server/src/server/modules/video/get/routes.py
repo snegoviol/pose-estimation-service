@@ -1,18 +1,17 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/server/src/server/modules/video/get/routes.py
+# ==================================================================================================
+
 from fastapi import status, Path, Query, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from postgres_lib import get_async_db_session, VideoRepository
@@ -20,6 +19,7 @@ from ..router import video_router
 from ..schemas import VideoResponse
 from ..utils import get_video_or_404
 
+# ==================================================================================================
 
 @video_router.get(
     "/",
@@ -56,6 +56,7 @@ async def list_videos_route(
     videos = await VideoRepository.get_all(session, skip=skip, limit=limit)
     return [VideoResponse.model_validate(v) for v in videos]
 
+# ==================================================================================================
 
 @video_router.get(
     "/{video_id}/",
@@ -91,3 +92,5 @@ async def get_video_route(
     """
     video = await get_video_or_404(session, video_id)
     return VideoResponse.model_validate(video)
+
+# ==================================================================================================

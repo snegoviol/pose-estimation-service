@@ -1,18 +1,16 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/scripts/src/scripts/utils/generate_minio_setup.py
+# ==================================================================================================
 """
 Generate MinIO initialization artifacts from environment variables.
 
@@ -36,6 +34,7 @@ import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
+# ==================================================================================================
 
 def generate_minio_setup(output_dir: Path) -> tuple[Path, Path]:
     """
@@ -67,6 +66,8 @@ def generate_minio_setup(output_dir: Path) -> tuple[Path, Path]:
 
     load_dotenv(Path.cwd() / ".env")
 
+    # ----------------------------------------------------------------------------------------------
+
     env_vars = {
         "MINIO_ROOT_NAME": os.getenv("MINIO_ROOT_NAME"),
         "MINIO_ROOT_PASSWORD": os.getenv("MINIO_ROOT_PASSWORD"),
@@ -85,6 +86,8 @@ def generate_minio_setup(output_dir: Path) -> tuple[Path, Path]:
     bucket_name = env_vars["MINIO_USER_BUCKET_NAME"]
     bucket_arn = f"arn:aws:s3:::{bucket_name}"
     objects_arn = f"arn:aws:s3:::{bucket_name}/*"
+
+    # ----------------------------------------------------------------------------------------------
 
     policy_content = {
         "Version": "2012-10-17",
@@ -117,6 +120,8 @@ def generate_minio_setup(output_dir: Path) -> tuple[Path, Path]:
     endpoint = f"http://{env_vars['INIT_MINIO_HOST']}:{env_vars['MINIO_INTERNAL_PORT']}"
     policy_name = env_vars["MINIO_USER_POLICY_NAME"]
 
+    # ----------------------------------------------------------------------------------------------
+
     setup_content = (
         "#!/bin/sh\n"
         "set -e\n"
@@ -139,6 +144,7 @@ def generate_minio_setup(output_dir: Path) -> tuple[Path, Path]:
 
     return policy_path.resolve(), setup_path.resolve()
 
+# ==================================================================================================
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -164,3 +170,5 @@ if __name__ == "__main__":
     except OSError as exc:
         print(f"File system error: {exc}", file=sys.stderr)
         sys.exit(1)
+
+# ==================================================================================================

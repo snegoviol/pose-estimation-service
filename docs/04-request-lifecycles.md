@@ -1,10 +1,34 @@
+<!--    
+    ================================================================================================
+    
+    Copyright (c) 2026 Ilya Snegov
+    
+    Dedicated to the public domain under the Creative Commons
+    CC0 1.0 Universal Public Domain Dedication (the "Dedication").
+    You may obtain a copy of the Dedication at
+    
+    https://creativecommons.org/publicdomain/zero/1.0/legalcode.en
+
+    ================================================================================================
+    docs/04-request-lifecycles.md
+    ================================================================================================
+-->
+
 # IV. Request Lifecycles
 
 > *This document describes the request lifecycle of every API endpoint — how each coordinates the service layer, workers, and storage backends — together with the cross-cutting API conventions shared across them.*
 
+<!--    
+    ================================================================================================
+-->
+
 ## Scope & API Contracts
 
 This document describes the **request lifecycles** — how each endpoint coordinates the service layer, workers, and storage backends — not the wire-level API contracts. Request and response schemas, field types, and status codes are deliberately omitted here to avoid duplicating a source of truth that would inevitably drift. For the exact contracts, consult the code itself, where every endpoint is fully annotated and documented through inline comments, or [export](../packages/scripts/src/scripts/utils/export_swagger.py) the OpenAPI (Swagger) specification and inspect it in any Swagger viewer (e.g. the online Swagger Editor).
+
+<!--    
+    ================================================================================================
+-->
 
 ## Architectural Decisions
 
@@ -13,6 +37,10 @@ This document describes the **request lifecycles** — how each endpoint coordin
 | **Explicit action suffixes for heavy operations** | Strict REST favors noun-only paths (`POST /videos`), but this API uses action suffixes (`/ingest`, `/submit`, `/download`) for operations that involve heavy I/O or background processing. These are genuinely long-running actions rather than plain resource writes, so naming the action is clearer and more honest about what happens than contorting it into a noun. A pragmatic deviation, accepted for readability over REST purity (**NFR‑8**). |
 | **Uniform `201` on deduplicated submissions** | When a submission matches existing work, the service returns the already-created resource — still under `201 Created` rather than a distinct "already existed" code. Strictly this misreports whether anything was created, but the deviation is deliberate: it is simpler to implement, and clients are expected to act on the response *body* (the resource and its id), not to branch on fine-grained status codes. The contract stays predictable; only the create/reuse distinction is elided. |
 | **Unified, generic error responses** | Per **NFR‑1**, the client is fully decoupled from the execution environment. Leaking internal details (stack traces, library exceptions, class names) would break that decoupling and couple clients to the service's internals. A centralized handler translates every internal exception into one consistent, generic error shape — protecting the internal architecture and giving clients a stable contract to handle regardless of what failed inside. |
+
+<!--    
+    ================================================================================================
+-->
 
 ## Endpoint Lifecycles
 
@@ -25,6 +53,10 @@ sequenceDiagram
     C->>S: GET /health/shallow/
     S-->>C: 200 OK
 ```
+
+<!--    
+    ================================================================================================
+-->
 
 ### `GET /health/deep/`
 
@@ -43,6 +75,10 @@ sequenceDiagram
     end
     S-->>C: 200 OK
 ```
+
+<!--    
+    ================================================================================================
+-->
 
 ### `POST /videos/ingest/`
 
@@ -64,6 +100,10 @@ sequenceDiagram
     end
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ### `GET /videos/`
 
 ```mermaid
@@ -76,6 +116,10 @@ sequenceDiagram
     S-->>C: 200 OK
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ### `GET /videos/{video_id}/`
 
 ```mermaid
@@ -87,6 +131,10 @@ sequenceDiagram
     S->>DB: fetch video record by ID
     S-->>C: 200 OK
 ```
+
+<!--    
+    ================================================================================================
+-->
 
 ### `GET /videos/download/{video_id}/`
 
@@ -101,6 +149,10 @@ sequenceDiagram
     S->>O: download video file
     S-->>C: 200 OK (raw bytes)
 ```
+
+<!--    
+    ================================================================================================
+-->
 
 ### `DELETE /videos/{video_id}/`
 
@@ -117,6 +169,10 @@ sequenceDiagram
     S-->>C: 204 No Content
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ### `GET /tasks/{task_id}/`
 
 ```mermaid
@@ -128,6 +184,10 @@ sequenceDiagram
     S->>RB: query task state by ID
     S-->>C: 200 OK
 ```
+
+<!--    
+    ================================================================================================
+-->
 
 ### `POST /estimations/submit/`
 
@@ -164,6 +224,10 @@ sequenceDiagram
     W->>MB: acknowledge task completion
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ### `GET /estimations/`
 
 ```mermaid
@@ -176,6 +240,10 @@ sequenceDiagram
     S-->>C: 200 OK
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ### `GET /estimations/{estimation_id}/`
 
 ```mermaid
@@ -187,6 +255,10 @@ sequenceDiagram
     S->>DB: fetch estimation record by ID
     S-->>C: 200 OK
 ```
+
+<!--    
+    ================================================================================================
+-->
 
 ### `GET /estimations/download/{estimation_id}/`
 
@@ -202,6 +274,10 @@ sequenceDiagram
     S-->>C: 200 OK (raw bytes)
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ### `DELETE /estimations/{estimation_id}/`
 
 ```mermaid
@@ -216,6 +292,10 @@ sequenceDiagram
     S->>O: delete all dependent artifacts
     S-->>C: 204 No Content
 ```
+
+<!--    
+    ================================================================================================
+-->
 
 ### `POST /visualizations/submit/`
 
@@ -252,6 +332,10 @@ sequenceDiagram
     W->>MB: acknowledge task completion
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ### `GET /visualizations/`
 
 ```mermaid
@@ -264,6 +348,10 @@ sequenceDiagram
     S-->>C: 200 OK
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ### `GET /visualizations/{visualization_id}/`
 
 ```mermaid
@@ -275,6 +363,10 @@ sequenceDiagram
     S->>DB: fetch visualization record by ID
     S-->>C: 200 OK
 ```
+
+<!--    
+    ================================================================================================
+-->
 
 ### `GET /visualizations/download/{visualization_id}/`
 
@@ -290,6 +382,10 @@ sequenceDiagram
     S-->>C: 200 OK (raw bytes)
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ### `DELETE /visualizations/{visualization_id}/`
 
 ```mermaid
@@ -304,3 +400,7 @@ sequenceDiagram
     S->>O: delete rendered MP4 file
     S-->>C: 204 No Content
 ```
+
+<!--    
+    ================================================================================================
+-->

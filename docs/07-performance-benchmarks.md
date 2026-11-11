@@ -1,6 +1,26 @@
+<!--    
+    ================================================================================================
+    
+    Copyright (c) 2026 Ilya Snegov
+    
+    Dedicated to the public domain under the Creative Commons
+    CC0 1.0 Universal Public Domain Dedication (the "Dedication").
+    You may obtain a copy of the Dedication at
+    
+    https://creativecommons.org/publicdomain/zero/1.0/legalcode.en
+
+    ================================================================================================
+    docs/07-performance-benchmarks.md
+    ================================================================================================
+-->
+
 # VII. Performance Benchmarks
 
 > *This document presents empirical performance benchmarks for the Human Pose Estimation Service, measuring ingestion latency, GPU inference throughput, and end-to-end parallel pipeline efficiency — validating the deduplication, asynchronous execution, and independent worker scaling decisions made in the preceding documents.*
+
+<!--    
+    ================================================================================================
+-->
 
 ## Ingestion Latency & Deduplication
 
@@ -13,6 +33,10 @@ The key metric is the **Deduplication Speedup** — the ratio between the first 
 
 Additionally, the benchmark validates content-type enforcement by attempting to upload non-video files (`.pt` model weights and `.env` configuration), ensuring the system correctly rejects unsupported payloads.
 
+<!--    
+    ================================================================================================
+-->
+
 ### Benchmark Files
 
 All video files were sourced from [Pexels](https://www.pexels.com/). Non-video files were included to test validation logic:
@@ -23,6 +47,10 @@ All video files were sourced from [Pexels](https://www.pexels.com/). Non-video f
 | 2 | [Man with prosthetic leg jogging](https://www.pexels.com/video/man-with-prosthetic-leg-jogging-8344814/) | MP4 | 3840 × 2160 | 24.32 sec | 72.10 MB |
 | 3 | yolo26n.pt | PyTorch Model | — | — | 5.29 MB |
 | 4 | .env | Environment Config | — | — | 0.003 MB |
+
+<!--    
+    ================================================================================================
+-->
 
 ### Configuration
 
@@ -46,6 +74,10 @@ All video files were sourced from [Pexels](https://www.pexels.com/). Non-video f
 | HTTP Method     | POST                             |
 | Content-Type    | multipart/form-data              |
 | Expected Format | video/mp4, video/quicktime, video/webm |
+
+<!--    
+    ================================================================================================
+-->
 
 ### Performance
 
@@ -71,6 +103,10 @@ All video files were sourced from [Pexels](https://www.pexels.com/). Non-video f
 | **File-size correlation** | Larger files (72 MB vs 5.69 MB) take proportionally longer to ingest but deduplicate at similar speed, indicating that hash lookup runs in constant time regardless of payload size. |
 | **Content validation** | Non-video files are rejected at the API boundary: a recognized non-video signature yields `400` (wrong type), while a file with no detectable signature at all — such as `.env` — yields `500`, since validation is signature-based and a file without one cannot be identified. |
 
+<!--    
+    ================================================================================================
+-->
+
 ## Estimation Latency & GPU Inference Deduplication
 
 [This benchmark](../packages/benchmarks/src/benchmarks/estimation_latency.py) measures the performance of the pose estimation endpoint and validates the result caching mechanism. Each video is submitted twice to the `/estimations/submit/` endpoint with identical processing parameters:
@@ -80,6 +116,10 @@ All video files were sourced from [Pexels](https://www.pexels.com/). Non-video f
 
 The key metric is the **Deduplication Speedup** — the ratio between the first and second request latencies. A high speedup demonstrates that the parameter-aware caching effectively eliminates redundant GPU computation for repeated estimation requests.
 
+<!--    
+    ================================================================================================
+-->
+
 ### Benchmark Videos
 
 All videos were sourced from [Pexels](https://www.pexels.com/) and processed with identical estimation parameters:
@@ -88,6 +128,10 @@ All videos were sourced from [Pexels](https://www.pexels.com/) and processed wit
 |---|-------|------------|----------|------|
 | 1 | [Man with prosthetic leg jogging](https://www.pexels.com/video/man-with-prosthetic-leg-jogging-8344814/) | 3840 × 2160 | 24.32 sec | 72.10 MB |
 | 2 | [Person jogging at the beach](https://www.pexels.com/video/person-jogging-at-the-beach-4928018/) | 1920 × 1080 | 8.93 sec | 5.69 MB |
+
+<!--    
+    ================================================================================================
+-->
 
 ### Configuration
 
@@ -122,6 +166,10 @@ All videos were sourced from [Pexels](https://www.pexels.com/) and processed wit
 | Target Frames | 400 | 160 |
 | Batch Size | 30 | 30 |
 
+<!--    
+    ================================================================================================
+-->
+
 ### Performance
 
 | # | Video | Target Frames | 1st Request (GPU Inference) | 2nd Request (Cache Hit) | Speedup | Throughput |
@@ -138,6 +186,10 @@ All videos were sourced from [Pexels](https://www.pexels.com/) and processed wit
 | **Near real-time inference** | First-request processing tracks roughly real time: a 20-second target runs in ~27 s, an 8-second target in ~11 s, indicating the GPU is kept well utilized rather than stalling on I/O. |
 | **Consistent throughput** | Despite different source resolutions and durations, both videos sustain ~14.5 FPS, indicating the pipeline scales with frame count rather than being bottlenecked by resolution or I/O. |
 
+<!--    
+    ================================================================================================
+-->
+
 ## Parallel Pipeline Throughput
 
 [This benchmark](../packages/benchmarks/src/benchmarks/parallel_pipeline.py) evaluates the end-to-end throughput of the system under concurrent load. Ten videos are submitted simultaneously, and each independently progresses through the complete processing pipeline without synchronization barriers:
@@ -149,6 +201,10 @@ All videos were sourced from [Pexels](https://www.pexels.com/) and processed wit
 Unlike sequential benchmarks, this test validates the distributed orchestration layer. Each video begins its next stage immediately upon completion of the previous one, without waiting for other videos to finish. This exposes the true parallelism of the worker pool and the effectiveness of the Celery-based task dispatch.
 
 The key metric is the **Parallelism Ratio** — the ratio between the sum of all individual stage latencies and the actual wall-clock time. A ratio significantly greater than 1.0 confirms that the system is executing multiple stages of multiple videos concurrently, rather than serializing them.
+
+<!--    
+    ================================================================================================
+-->
 
 ### Benchmark Videos
 
@@ -166,6 +222,10 @@ All videos were sourced from [Pexels](https://www.pexels.com/) and processed sim
 | 8 | [Woman jogging by the seashore](https://www.pexels.com/video/woman-jogging-by-the-seashore-3192083/) | 3840 × 2160 | 14.84 sec | 41.02 MB |
 | 9 | [A man running on the beach](https://www.pexels.com/video/a-man-running-on-the-beach-5968011/) | 1280 × 720 | 9.97 sec | 3.27 MB |
 | 10 | [Man jogging outdoors](https://www.pexels.com/video/man-jogging-outdoors-6022795/) | 3840 × 2160 | 15.64 sec | 46.78 MB |
+
+<!--    
+    ================================================================================================
+-->
 
 ### Configuration
 
@@ -201,6 +261,10 @@ All videos were sourced from [Pexels](https://www.pexels.com/) and processed sim
 | CRF (Quality)            | 20     |
 | Encoding Preset          | medium |
 | Visualization Batch Size | 30     |
+
+<!--    
+    ================================================================================================
+-->
 
 ### Performance
 
@@ -238,3 +302,7 @@ All videos were sourced from [Pexels](https://www.pexels.com/) and processed sim
 | **Dynamic, demand-driven scheduling** | Despite videos ranging from 3.27 MB (720p, 10 s) to 77.51 MB (4K, 26 s), all complete without manual coordination. A small video finishing ingestion proceeds straight to estimation without waiting on larger uploads — stages advance per video as each becomes ready. |
 | **Effective pipeline overlap** | Wall-clock time (135.68 s) barely exceeds the single heaviest video's end-to-end latency (135.58 s, video #2), meaning the other nine videos were processed almost entirely within the window that one heavy video occupied anyway — near-complete overlap rather than serialization. |
 | **Ratio is a floor, not a clean parallelism measure** | Because per-video latencies include mutual queue waiting, the summed total is inflated and the 6.36x ratio overstates pure compute parallelism somewhat. It remains a valid lower-bound proof that the system overlaps work heavily, but it should be read as "at least this concurrent," not as a precise speedup factor. |
+
+<!--    
+    ================================================================================================
+-->

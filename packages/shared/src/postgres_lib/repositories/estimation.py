@@ -1,24 +1,24 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/shared/src/postgres_lib/repositories/estimation.py
+# ==================================================================================================
+
 from typing import ClassVar
 from sqlalchemy import select, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
 from .base import BaseRepository
 from ..models import Estimation, Visualization
 
+# ==================================================================================================
 
 class EstimationRepository(BaseRepository):
     """
@@ -37,6 +37,8 @@ class EstimationRepository(BaseRepository):
     """
 
     model_class: ClassVar[type[Estimation]] = Estimation
+
+    # ----------------------------------------------------------------------------------------------
 
     @classmethod
     async def get_all_by_video_id(
@@ -64,6 +66,8 @@ class EstimationRepository(BaseRepository):
         stmt = select(cls.model_class).where(cls.model_class.video_id == video_id)
         result = await session.execute(stmt)
         return list(result.scalars().all())
+
+    # ----------------------------------------------------------------------------------------------
 
     @classmethod
     async def collect_dependent_storage_keys(
@@ -102,3 +106,5 @@ class EstimationRepository(BaseRepository):
         stmt = union_all(est_q, vis_q)
         result = await session.execute(stmt)
         return [row[0] for row in result.all()]
+
+# ==================================================================================================

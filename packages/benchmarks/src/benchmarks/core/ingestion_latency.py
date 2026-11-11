@@ -1,24 +1,24 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/benchmarks/src/benchmarks/core/ingestion_latency.py
+# ==================================================================================================
+
 import time
 from pathlib import Path
 from typing import NamedTuple
 import requests
 from scripts.quick_start.shared import ApiUrls
 
+# ==================================================================================================
 
 class RequestResult(NamedTuple):
     """
@@ -40,6 +40,7 @@ class RequestResult(NamedTuple):
     message: str
     video_id: str | None
 
+# ==================================================================================================
 
 def send_request_and_measure_latency(
     urls: ApiUrls, 
@@ -106,6 +107,7 @@ def send_request_and_measure_latency(
         video_id=video_id
     )
 
+# ==================================================================================================
 
 class IngestionBenchmarkResult(NamedTuple):
     """
@@ -124,6 +126,7 @@ class IngestionBenchmarkResult(NamedTuple):
     second_request: RequestResult | None
     video_id: str | None
 
+# ==================================================================================================
 
 def execute_benchmark(urls: ApiUrls, test_file: Path) -> IngestionBenchmarkResult:
     """
@@ -161,3 +164,5 @@ def execute_benchmark(urls: ApiUrls, test_file: Path) -> IngestionBenchmarkResul
         second_request=r2,
         video_id=r1.video_id
     )
+
+# ==================================================================================================

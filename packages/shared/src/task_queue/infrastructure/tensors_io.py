@@ -1,18 +1,16 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/shared/src/task_queue/infrastructure/tensors_io.py
+# ==================================================================================================
 """
 Serialization utilities for PipelineOutput using the safetensors format.
 
@@ -48,6 +46,7 @@ from ensam3d_inference import FramePoseResult, PipelineOutput
 from ensam3d_inference.core import PoseEstimatorOutput
 from ensam3d_inference.preprocessor.detector import Detection
 
+# ==================================================================================================
 
 def _ensure_cpu_contiguous(tensor: torch.Tensor) -> torch.Tensor:
     """
@@ -67,6 +66,7 @@ def _ensure_cpu_contiguous(tensor: torch.Tensor) -> torch.Tensor:
         tensor = tensor.contiguous()
     return tensor.cpu()
 
+# ==================================================================================================
 
 def _flatten_to_dict(obj: Any, prefix: str = "") -> dict[str, torch.Tensor]:
     """
@@ -120,6 +120,7 @@ def _flatten_to_dict(obj: Any, prefix: str = "") -> dict[str, torch.Tensor]:
 
     return result
 
+# ==================================================================================================
 
 def _reconstruct_from_dict(
     data: dict[str, torch.Tensor],
@@ -204,6 +205,7 @@ def _reconstruct_from_dict(
 
     return results
 
+# ==================================================================================================
 
 def _clone_tensors(obj: Any) -> Any:
     """
@@ -232,6 +234,7 @@ def _clone_tensors(obj: Any) -> Any:
         return type(obj)(_clone_tensors(item) for item in obj)
     return obj
 
+# ==================================================================================================
 
 def save_pipeline_output(output: PipelineOutput, path: Path | None = None) -> Path:
     """
@@ -296,6 +299,7 @@ def save_pipeline_output(output: PipelineOutput, path: Path | None = None) -> Pa
     save_file(flat_tensors, str(path), metadata=metadata)
     return path
 
+# ==================================================================================================
 
 def load_pipeline_output(path: Path) -> PipelineOutput:
     """
@@ -339,3 +343,5 @@ def load_pipeline_output(path: Path) -> PipelineOutput:
         if isinstance(exc, (FileNotFoundError, ValueError)):
             raise
         raise RuntimeError(f"Failed to load safetensors archive: {exc}") from exc
+
+# ==================================================================================================

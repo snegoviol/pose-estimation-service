@@ -1,10 +1,30 @@
+<!--    
+    ================================================================================================
+    
+    Copyright (c) 2026 Ilya Snegov
+    
+    Dedicated to the public domain under the Creative Commons
+    CC0 1.0 Universal Public Domain Dedication (the "Dedication").
+    You may obtain a copy of the Dedication at
+    
+    https://creativecommons.org/publicdomain/zero/1.0/legalcode.en
+
+    ================================================================================================
+    docs/06-project-structure.md
+    ================================================================================================
+-->
+
 # VI. Project Structure
 
 > *This document describes the logical organization of the project codebase as a Python monorepo. Each package strictly follows the standard `src/` layout for clean imports, independent versioning, and reproducible builds via Pixi.*
 
+<!--    
+    ================================================================================================
+-->
+
 ## Repository Layout
 
-```bash
+```sh
 pose-estimation-service/
 ├── packages/               # Monorepo root: all independently deployable
 │   │                       # Python modules and shared libraries. Each
@@ -47,6 +67,10 @@ pose-estimation-service/
                             # schema change scripts.
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ## Package Overview
 
 > **Note:** all files include inline comments describing backend-specific decisions and non-obvious implementation details.
@@ -55,7 +79,7 @@ pose-estimation-service/
 
 The FastAPI application that implements the **Service Layer** defined in the [Concurrency](./02-concurrency.md) document — the system's HTTP boundary. It handles request validation, response serialization, and the delegation of heavy work to background workers across the message broker.
 
-```bash
+```sh
 server/
 ├── pyproject.toml
 └── src/server/
@@ -98,11 +122,15 @@ Route handlers are organized by domain resource under `modules/`, with each reso
 
 The `exception_handlers/` subdirectory implements the unified error-handling strategy, translating internal exceptions into generic, decoupled error responses as defined in [Request Lifecycles](./04-request-lifecycles.md).
 
+<!--    
+    ================================================================================================
+-->
+
 ### 2. `packages/worker-inference/`
 
 The GPU-bound worker process that executes the **pose estimation** tasks defined in the [Concurrency](./02-concurrency.md) document — the system's isolated inference context. It consumes tasks from the message broker, runs the `ensam3d_inference` pipeline on the GPU, and persists the resulting artifacts.
 
-```bash
+```sh
 worker-inference/
 ├── pyproject.toml
 └── src/worker_inference/
@@ -122,11 +150,15 @@ worker-inference/
 
 This worker is isolated from post-processing tasks to prevent VRAM waste on non-ML operations. The `_state.py` module ensures that the heavy model weights are loaded exactly once when the worker process starts, not on every task invocation.
 
+<!--    
+    ================================================================================================
+-->
+
 ### 3. `packages/worker-default/`
 
 The CPU-bound worker process that executes the **annotation rendering** tasks defined in the [Concurrency](./02-concurrency.md) document — the system's isolated post-processing context, free of any ML or GPU dependencies. It consumes tasks from the message broker, renders pose overlays onto the source video, and persists the encoded result.
 
-```bash
+```sh
 worker-default/
 ├── pyproject.toml
 └── src/worker_default/
@@ -142,11 +174,15 @@ worker-default/
 
 This worker uses a `prefork` pool with `concurrency=4`, letting multiple CPU-bound rendering tasks run in parallel — and scale independently of the GPU-bound inference pool (**NFR‑6**). Its complete isolation from the inference worker keeps GPU memory dedicated to inference, never pinned by a process that performs no ML work (**NFR‑5**).
 
+<!--    
+    ================================================================================================
+-->
+
 ### 4. `packages/shared/`
 
 Centralizes all infrastructure client code and shared utilities consumed by the [Service Layer](./06-project-structure.md) and both worker types, implementing the concrete clients for the architectural roles defined in the [Concurrency](./02-concurrency.md) and [Domain Model](./03-domain-model.md) documents — the message broker and result backend, the SQL database, and object storage.
 
-```bash
+```sh
 shared/
 ├── pyproject.toml
 └── src/
@@ -187,11 +223,15 @@ shared/
             └── types.py            # Shared type definitions.
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ### 5. `packages/scripts/`
 
 Standalone automation scripts for environment bootstrapping, infrastructure initialization, and developer utilities. These scripts are not part of the runtime application but are essential for development workflow and deployment.
 
-```bash
+```sh
 scripts/
 ├── pyproject.toml
 └── src/scripts/
@@ -210,11 +250,15 @@ scripts/
 
 The `quick_start/` scripts orchestrate infrastructure provisioning, database migration, and process launch in the correct dependency order, eliminating manual setup steps. The `utils/` scripts generate infrastructure initialization artifacts from environment variables, provisioning each database user and Redis ACL with only the privileges its consumer needs (**NFR‑11**).
 
+<!--    
+    ================================================================================================
+-->
+
 ### 6. `packages/benchmarks/`
 
 Performance testing suite for measuring endpoint latency, pipeline throughput, and parallel processing efficiency. This package contains both the benchmark logic and the entry-point scripts for execution.
 
-```bash
+```sh
 benchmarks/
 ├── pyproject.toml
 └── src/benchmarks/
@@ -232,6 +276,10 @@ benchmarks/
 
 Each benchmark script automatically provisions infrastructure, starts the necessary services, executes the test, and reports results with detailed configuration metadata. The `core/` module contains reusable async functions for HTTP requests, task polling, and result aggregation.
 
+<!--    
+    ================================================================================================
+-->
+
 ## Infrastructure Directories
 
 ### 7. `migrations/`
@@ -240,11 +288,15 @@ Alembic migration environment managing the evolution of the **SQL Database** sch
 
 This separation ensures that schema changes are version-controlled, reviewable, and can be applied consistently across environments.
 
+<!--    
+    ================================================================================================
+-->
+
 ### 8. `docker/`
 
 Dockerfiles for each deployable service and Docker Compose configurations for two deployment modes:
 
-```bash
+```sh
 docker/
 ├── Dockerfile.server            # FastAPI application container.
 ├── Dockerfile.worker-inference  # GPU inference worker container.
@@ -269,6 +321,14 @@ The two Compose stacks realize the dual-mode requirement of **NFR‑7**: the inf
 
 The `postgres/`, `redis/`, and `minio/` subdirectories contain initialization artifacts generated by the infrastructure scripts in `packages/scripts/utils/` (these generated files are git-ignored by default, so they will not appear in the repository — they are produced locally on first setup).
 
+<!--    
+    ================================================================================================
+-->
+
 ### 9. `config/`
 
 Environment variable templates for local development and production deployment modes. By separating configuration from code, the same codebase runs in either mode purely by supplying a different `.env` — no source changes when switching environments (**NFR‑7**).
+
+<!--    
+    ================================================================================================
+-->

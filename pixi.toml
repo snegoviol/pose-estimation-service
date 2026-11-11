@@ -1,11 +1,23 @@
 # ==================================================================================================
+#
+# Copyright (c) 2026 Ilya Snegov
+#
+# Dedicated to the public domain under the Creative Commons
+# CC0 1.0 Universal Public Domain Dedication (the "Dedication").
+# You may obtain a copy of the Dedication at
+#
+# https://creativecommons.org/publicdomain/zero/1.0/legalcode.en
+#
+# ==================================================================================================
+# pixi.toml
+# ==================================================================================================
 
 [workspace]
-authors = ["Sierra-Arn <unweariedheart@gmail.com>"]
+authors = ["Ilya Snegov <unweariedheart@gmail.com>"]
 name = "pose-estimation-service"
 version = "1.0.1"
-license = "Apache-2.0"
-repository = "https://github.com/Sierra-Arn/pose-estimation-service"
+license = "Apache-2.0 AND CC0-1.0"
+repository = "https://github.com/snegoviol/pose-estimation-service"
 
 channels = ["nvidia", "conda-forge"]
 platforms = [
@@ -78,7 +90,10 @@ jaxtyping = ">=0.3.7,<0.4"
 
 [feature.worker-common-pkg.pypi-dependencies]
 roma = ">=1.5.6, <2"
-ensam3d-lib = { git = "https://github.com/Sierra-Arn/ensam3d-lib.git" }
+
+[feature.worker-common-pkg.pypi-dependencies.ensam3d-lib]
+git = "https://github.com/snegoviol/ensam3d-lib.git"
+rev = "a3d07542e65063db54b2691c827b13e36d285814"
 
 # ==================================================================================================
 

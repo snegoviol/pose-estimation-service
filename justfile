@@ -1,35 +1,35 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
+# ==================================================================================================
+#
+# Copyright (c) 2026 Ilya Snegov
+#
+# Dedicated to the public domain under the Creative Commons
+# CC0 1.0 Universal Public Domain Dedication (the "Dedication").
+# You may obtain a copy of the Dedication at
+#
+# https://creativecommons.org/publicdomain/zero/1.0/legalcode.en
+#
+# ==================================================================================================
+# justfile
+# ==================================================================================================
 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 # Justfile Settings
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 set dotenv-load := true
 set export := true
 
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 # Environment Mappings: justfile variable -> pixi environment
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 
 ENV_DEFAULT     := "pixi run -e default"
 ENV_SERVER      := "pixi run -e server"
 ENV_WORKER_INF  := "pixi run -e worker-inference"
 ENV_WORKER_DEF  := "pixi run -e worker-default"
 
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 # Scripts
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 
 # Generate .env from template with secure random passwords
 gen-env template='local':
@@ -47,9 +47,9 @@ gen-sql:
 gen-minio:
     {{ENV_DEFAULT}} python -m scripts.utils.generate_minio_setup
 
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 # Infrastructure
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 
 # Generate new revision
 db-revision message='New migration':
@@ -67,9 +67,9 @@ db-migrate:
 db-rollback:
     {{ENV_SERVER}} alembic -c ./migrations/alembic.ini downgrade -1
 
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 # Runtime
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 
 # Start Celery worker for ML inference
 worker-inference:
@@ -83,9 +83,9 @@ worker-default:
 server:
     {{ENV_SERVER}} python -m server.main
 
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 # Docker Local
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 
 # Start infrastructure stack to be consumed by locally running services
 docker-local-up:
@@ -99,9 +99,9 @@ docker-local-down:
 docker-local-logs:
     {{ENV_DEFAULT}} docker compose -f docker/compose.local.yml logs -f
 
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 # Docker Deploy
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 
 # Launch fully containerized stack with infrastructure, API server, and workers
 docker-deploy-up:
@@ -115,9 +115,9 @@ docker-deploy-down:
 docker-deploy-logs:
     {{ENV_DEFAULT}} docker compose -f docker/compose.deploy.yml logs -f
 
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 # Quick Start
-# =============================================================================
+# --------------------------------------------------------------------------------------------------
 
 # Start full local development environment and open Swagger in browser
 quick-start-local:
@@ -126,3 +126,5 @@ quick-start-local:
 # Start full containerized deployment and open Swagger in browser
 quick-start-deploy:
     {{ENV_DEFAULT}} python -m scripts.quick_start.deploy
+
+# ==================================================================================================

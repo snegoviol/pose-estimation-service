@@ -1,21 +1,21 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/shared/src/minio_lib/operations.py
+# ==================================================================================================
+
 from .utils import get_sync_client, get_async_client
 from .config import minio_config
 
+# ==================================================================================================
 
 class StorageOperations:
     """
@@ -28,6 +28,8 @@ class StorageOperations:
     All methods are static: the class carries no instance state and exists purely
     as a logical namespace for S3-related I/O operations.
     """
+
+    # ----------------------------------------------------------------------------------------------
 
     @staticmethod
     async def upload_bytes(
@@ -61,6 +63,8 @@ class StorageOperations:
                 Body=data,
                 ContentType=content_type,
             )
+
+    # ----------------------------------------------------------------------------------------------
 
     @staticmethod
     def upload_file_sync(
@@ -96,6 +100,8 @@ class StorageOperations:
             ExtraArgs={"ContentType": content_type},
         )
 
+    # ----------------------------------------------------------------------------------------------
+
     @staticmethod
     async def download_bytes_with_type(storage_key: str) -> tuple[bytes, str]:
         """
@@ -130,6 +136,8 @@ class StorageOperations:
             content_type = response.get("ContentType")
             return body, content_type
 
+    # ----------------------------------------------------------------------------------------------
+
     @staticmethod
     def download_bytes_sync(storage_key: str) -> bytes:
         """
@@ -157,6 +165,8 @@ class StorageOperations:
         )
         return response["Body"].read()
 
+    # ----------------------------------------------------------------------------------------------
+
     @staticmethod
     async def delete(storage_key: str) -> None:
         """
@@ -177,6 +187,8 @@ class StorageOperations:
         """
         async with get_async_client() as client:
             await client.delete_object(Bucket=minio_config.user_bucket_name, Key=storage_key)
+
+    # ----------------------------------------------------------------------------------------------
 
     @staticmethod
     async def delete_objects_batch(storage_keys: list[str]) -> None:
@@ -215,6 +227,8 @@ class StorageOperations:
                     Delete=delete_payload,
                 )
 
+    # ----------------------------------------------------------------------------------------------
+
     @staticmethod
     def generate_presigned_get_url(storage_key: str, expires: int = 3600) -> str:
         """
@@ -246,3 +260,5 @@ class StorageOperations:
             },
             ExpiresIn=expires,
         )
+
+# ==================================================================================================

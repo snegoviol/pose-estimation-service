@@ -1,18 +1,17 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/server/src/server/modules/task/routes.py
+# ==================================================================================================
+
 from fastapi import APIRouter, status, HTTPException, Path
 from celery.result import AsyncResult
 from task_queue import celery_app
@@ -20,6 +19,7 @@ from .schemas import TaskResponse
 
 tasks_router = APIRouter(prefix="/tasks", tags=["tasks"])
 
+# ==================================================================================================
 
 @tasks_router.get(
     "/{task_id}/",
@@ -74,3 +74,5 @@ async def get_task_status_route(
         status=status_str,
         result=payload,
     )
+
+# ==================================================================================================

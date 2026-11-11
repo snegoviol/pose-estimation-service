@@ -1,18 +1,17 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/worker-inference/src/worker_inference/main.py
+# ==================================================================================================
+
 from ensam3d_inference import Pipeline
 from task_queue import celery_config, celery_app
 from . import _state
@@ -20,6 +19,7 @@ from .config import inference_worker_config
 
 celery_app.autodiscover_tasks(["worker_inference.tasks"])
 
+# ==================================================================================================
 
 def get_pipeline() -> Pipeline:
     """
@@ -48,6 +48,7 @@ def get_pipeline() -> Pipeline:
         )
     return _state.pipeline
 
+# ==================================================================================================
 
 def main() -> None:
     """
@@ -87,6 +88,9 @@ def main() -> None:
 
     celery_app.worker_main(argv=worker_argv)
 
+# ==================================================================================================
 
 if __name__ == "__main__":
     main()
+
+# ==================================================================================================

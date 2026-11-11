@@ -1,6 +1,26 @@
+<!--    
+    ================================================================================================
+    
+    Copyright (c) 2026 Ilya Snegov
+    
+    Dedicated to the public domain under the Creative Commons
+    CC0 1.0 Universal Public Domain Dedication (the "Dedication").
+    You may obtain a copy of the Dedication at
+    
+    https://creativecommons.org/publicdomain/zero/1.0/legalcode.en
+
+    ================================================================================================
+    docs/05-dependencies.md
+    ================================================================================================
+-->
+
 # V. Dependencies Overview
 
 > *This document describes the dependencies required by the Human Pose Estimation Service: what each one is, the role it plays in the service, and why it was chosen over the alternatives.*
+
+<!--    
+    ================================================================================================
+-->
 
 ## System Dependencies
 
@@ -13,11 +33,19 @@
 | Docker | [moby/moby](https://github.com/moby/moby) | Containerization platform | Container runtime that isolates and runs the service layer, the workers, and the infrastructure images. |
 | Docker Compose | [docker/compose](https://github.com/docker/compose) | Multi-container orchestration tool | Declares containers, their networking, and startup order for the local and deploy execution modes. |
 
+<!--    
+    ================================================================================================
+-->
+
 ## Additional System Dependencies (deploy mode)
 
 | Dependency | Repository | What it is | Role in the project |
 |---|---|---|---|
 | NVIDIA Container Toolkit | [NVIDIA/nvidia-container-toolkit](https://github.com/NVIDIA/nvidia-container-toolkit) | GPU passthrough for containers | Exposes the host GPU and its driver libraries inside Docker containers, so that containerized workers can run GPU-accelerated computation in deploy mode. |
+
+<!--    
+    ================================================================================================
+-->
 
 ## Docker Images
 
@@ -33,16 +61,20 @@
 
 | Dependency | Repository | What it is | Role in the project |
 |---|---|---|---|
-| CPython | [python/cpython](https://github.com/python/cpython) | Python virtual machine | Executes all source code across every package. |
+| CPython | [python/cpython](https://github.com/python/cpython) | The de facto standard implementation of the Python programming language | Executes all source code across every package. |
 | python-dotenv | [theskumar/python-dotenv](https://github.com/theskumar/python-dotenv) | Environment variable loader | Loads variables from .env files into os.environ at startup, making .env values available to the application. |
 | requests | [psf/requests](https://github.com/psf/requests) | HTTP client | Probes the server's health endpoint on startup to confirm it has started successfully. |
 | just | [casey/just](https://github.com/casey/just) | Command runner | Provides shorthand recipes for bootstrap commands, migration targets, process launchers, and Docker Compose shortcuts. |
+
+<!--    
+    ================================================================================================
+-->
 
 ### Shared Dependencies
 
 | Dependency | Repository | What it is | Role in the project |
 |---|---|---|---|
-| CPython | [python/cpython](https://github.com/python/cpython) | Python virtual machine | Executes all source code across every package. |
+| CPython | [python/cpython](https://github.com/python/cpython) | The de facto standard implementation of the Python programming language | Executes all source code across every package. |
 | Pydantic Settings | [pydantic/pydantic-settings](https://github.com/pydantic/pydantic-settings) | Settings management library | Groups and validates environment variables, exposing them as reusable, strongly-typed config classes that the application references throughout. |
 | boto3 | [boto/boto3](https://github.com/boto/boto3) | Official AWS SDK for Python | Synchronous interaction with S3. |
 | aioboto3 | [terricain/aioboto3](https://github.com/terricain/aioboto3) | Async wrapper around [boto3](https://github.com/boto/boto3) and [aiobotocore](https://github.com/aio-libs/aiobotocore) | Asynchronous interaction with S3. |
@@ -54,6 +86,10 @@
 | Celery | [celery/celery](https://github.com/celery/celery) | Distributed task queue | Orchestrates background execution of the inference and post-processing tasks across worker pools, with task routing between them. |
 | redis-py | [redis/redis-py](https://github.com/redis/redis-py) | Official Redis client | Connects Celery to Redis as its message broker and result backend |
 
+<!--    
+    ================================================================================================
+-->
+
 ### Server Dependencies
 
 | Dependency | Repository | What it is | Role in the project |
@@ -63,11 +99,19 @@
 | python-json-logger | [nhairs/python-json-logger](https://github.com/nhairs/python-json-logger) | JSON log formatter | Formats all log records as structured JSON, enabling consistent machine-readable output. |
 | filetype | [h2non/filetype.py](https://github.com/h2non/filetype.py) | MIME type detector | Validates uploaded video files by magic-byte signature before processing, preventing malicious or corrupted uploads. |
 
+<!--    
+    ================================================================================================
+-->
+
 ### Worker-Common Dependencies
 
 | Dependency | Repository | What it is | Role in the project |
 |---|---|---|---|
-| ensam3d-lib | [Sierra‑Arn/ensam3d‑lib](https://github.com/Sierra-Arn/ensam3d-lib) | First-party inference library | Provides the `ensam3d_inference` package, which performs fast, accurate pose estimation. |
+| ensam3d-lib | [snegoviol/ensam3d‑lib](https://github.com/snegoviol/ensam3d-lib) | First-party inference library | Provides the `ensam3d_inference` package, which performs fast, accurate pose estimation. |
+
+<!--    
+    ================================================================================================
+-->
 
 ### Worker-Inference Dependencies
 
@@ -76,13 +120,21 @@
 | CUDA Toolkit | [nvidia.com](https://developer.nvidia.com/cuda/toolkit) | CUDA runtime and math libraries | User-space runtime and optimized GPU libraries through which PyTorch executes its tensor computations on the GPU instead of the CPU, where they run many times faster. |
 | pytorch-gpu | [pytorch/pytorch](https://github.com/pytorch/pytorch) | Deep learning framework, CUDA built | Runtime for the `ensam3d_inference` package: tensor computation and neural-network execution on the GPU. |
 
+<!--    
+    ================================================================================================
+-->
+
 ### Worker-Default Dependencies
 
 | Dependency | Repository | What it is | Role in the project |
 |---|---|---|---|
 | pytorch-cpu | [pytorch/pytorch](https://github.com/pytorch/pytorch) | Deep learning framework, CPU built | Lets the post-processing worker operate on the `torch.Tensor` results produced by the inference worker, without requiring a GPU. |
 
-> **Note:** `ensam3d-lib` does not declare its own runtime dependencies, so they are provided manually here: `torchvision`, `timm`, `RoMa`, `Ultralytics`, `jaxtyping`, `OpenCV`, and `NumPy` (alongside `PyTorch`). It also needs the YOLO26 detector and SAM 3D Body model weights to run. These aren't documented further here — see the [`ensam3d_inference` dependencies documentation](https://github.com/Sierra-Arn/ensam3d-lib/blob/main/docs/ensam3d_inference/07-dependencies.md).
+> **Note:** `ensam3d-lib` does not declare its own runtime dependencies, so they are provided manually here: `torchvision`, `timm`, `RoMa`, `Ultralytics`, `jaxtyping`, `OpenCV`, and `NumPy` (alongside `PyTorch`). It also needs the YOLO26 detector and SAM 3D Body model weights to run. These aren't documented further here — see the [`ensam3d_inference` dependencies documentation](https://github.com/snegoviol/ensam3d-lib/blob/main/docs/ensam3d_inference/07-dependencies.md).
+
+<!--    
+    ================================================================================================
+-->
 
 ## Rationale for Dependency Choices
 
@@ -100,3 +152,7 @@
 | Redis | The backing store the task queue needs — serving as both Celery's message broker and result backend from a single instance. It was chosen for two reasons: prior hands-on experience with it, and the fact that this project needs no complex broker routing of the kind RabbitMQ specializes in, so Redis's simplicity is a better fit than a heavier message broker. |
 
 The remaining dependencies aren't covered individually because the rationale is identical for each: every one is either the official tool for its task or the de facto standard in the Python ecosystem — the most widely used, best-documented, and most battle-tested option available, with no alternative worth the switch.
+
+<!--    
+    ================================================================================================
+-->

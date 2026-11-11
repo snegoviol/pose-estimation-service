@@ -1,23 +1,23 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/shared/src/task_queue/config.py
+# ==================================================================================================
+
 from typing import ClassVar, Final
 from pydantic import Field
 from base_lib import BaseConfig
 from redis_lib import redis_config
 
+# ==================================================================================================
 
 class CeleryConfig(BaseConfig):
     """
@@ -83,8 +83,9 @@ class CeleryConfig(BaseConfig):
 
     env_prefix: ClassVar[str] = "CELERY_"
 
-    # ======= ENV-DEPENDENT (configurable via CELERY_ prefixed env vars) =======
-
+    # ----------------------------------------------------------------------------------------------
+    # ENV-DEPENDENT (configurable via CELERY_ prefixed env vars)
+    # ----------------------------------------------------------------------------------------------
     broker_db_index: int = Field(default=0, ge=0)
     result_db_index: int = Field(default=1, ge=0)
     app_name: str = "ensam3d-backend"
@@ -93,8 +94,9 @@ class CeleryConfig(BaseConfig):
     queue_name_default: str = "default"
     exchange_name: str = "tasks"
 
-    # ======= ARCHITECTURAL CONSTANTS (private, not configurable via env) =======
-
+    # ----------------------------------------------------------------------------------------------
+    # ARCHITECTURAL CONSTANTS (private, not configurable via env)
+    # ----------------------------------------------------------------------------------------------
     _task_serializer: Final[str] = "json"
     _result_serializer: Final[str] = "json"
     _accept_content: Final[list[str]] = ["json"]
@@ -103,6 +105,8 @@ class CeleryConfig(BaseConfig):
     _exchange_type: Final[str] = "direct"
     _task_name_estimate: Final[str] = "estimate"
     _task_name_visualize: Final[str] = "visualize"
+
+    # ----------------------------------------------------------------------------------------------
 
     @property
     def broker_url(self) -> str:
@@ -116,6 +120,8 @@ class CeleryConfig(BaseConfig):
         """
         return f"{redis_config.connection_url}/{self.broker_db_index}"
 
+    # ----------------------------------------------------------------------------------------------
+
     @property
     def result_backend_url(self) -> str:
         """
@@ -128,5 +134,8 @@ class CeleryConfig(BaseConfig):
         """
         return f"{redis_config.connection_url}/{self.result_db_index}"
 
+# ==================================================================================================
 
 celery_config = CeleryConfig()
+
+# ==================================================================================================

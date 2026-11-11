@@ -1,22 +1,22 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/worker-inference/src/worker_inference/config.py
+# ==================================================================================================
+
 from typing import ClassVar, Final
 from ensam3d_inference import DeviceType
 from base_lib import BaseConfig, LogLevel
 
+# ==================================================================================================
 
 class InferenceWorkerConfig(BaseConfig):
     """
@@ -67,7 +67,9 @@ class InferenceWorkerConfig(BaseConfig):
 
     env_prefix: ClassVar[str] = "WORKER_INFERENCE_"
 
-    # == ENV-DEPENDENT (configurable via WORKER_INFERENCE_ prefixed env vars) ==
+    # ----------------------------------------------------------------------------------------------
+    # ENV-DEPENDENT (configurable via WORKER_INFERENCE_ prefixed env vars) 
+    # ----------------------------------------------------------------------------------------------
     name: str = "inference_worker@%n"
     model_path: str = "sam-3d-body-vith"
     model_device: DeviceType = "cuda"
@@ -75,10 +77,15 @@ class InferenceWorkerConfig(BaseConfig):
     detector_device: DeviceType = "cuda"
     log_level: LogLevel = "INFO"
 
-    # ====== ARCHITECTURAL CONSTANTS (private, not configurable via env) ======
+    # ----------------------------------------------------------------------------------------------
+    # ARCHITECTURAL CONSTANTS (private, not configurable via env)
+    # ----------------------------------------------------------------------------------------------
     _pool: Final[str] = "solo"
     _concurrency: Final[str] = "1"
     _prefetch_multiplier: Final[str] = "1"
 
+# ==================================================================================================
 
 inference_worker_config = InferenceWorkerConfig()
+
+# ==================================================================================================

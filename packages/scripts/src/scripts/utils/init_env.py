@@ -1,18 +1,16 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/scripts/src/scripts/utils/init_env.py
+# ==================================================================================================
 """
 Initialize environment configuration from a template.
 
@@ -39,6 +37,7 @@ TEMPLATE_MAP = {
     "deploy": ".env.deploy.example",
 }
 
+# ==================================================================================================
 
 def _generate_secure_password(length: int = 32) -> str:
     """
@@ -57,6 +56,7 @@ def _generate_secure_password(length: int = 32) -> str:
     alphabet = string.ascii_letters + string.digits
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
+# ==================================================================================================
 
 def init_env(template_choice: str, password_length: int = 32) -> Path:
     """
@@ -102,6 +102,8 @@ def init_env(template_choice: str, password_length: int = 32) -> Path:
     credential_keywords = {"PASSWORD"}
     placeholder_values = {"changeme"}
 
+    # ----------------------------------------------------------------------------------------------
+
     lines = []
     for line in template_path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
@@ -124,6 +126,7 @@ def init_env(template_choice: str, password_length: int = 32) -> Path:
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return output_path.resolve()
 
+# ==================================================================================================
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -147,3 +150,5 @@ if __name__ == "__main__":
     except Exception as exc:
         print(f"Unexpected error: {exc}", file=sys.stderr)
         sys.exit(1)
+
+# ==================================================================================================

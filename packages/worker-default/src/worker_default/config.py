@@ -1,22 +1,22 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/worker-default/src/worker_default/config.py
+# ==================================================================================================
+
 from typing import ClassVar, Literal
 from pydantic import Field
 from base_lib import BaseConfig, LogLevel
 
+# ==================================================================================================
 
 class DefaultWorkerConfig(BaseConfig):
     """
@@ -55,12 +55,17 @@ class DefaultWorkerConfig(BaseConfig):
 
     env_prefix: ClassVar[str] = "WORKER_DEFAULT_"
 
-    # === ENV-DEPENDENT (configurable via WORKER_DEFAULT_ prefixed env vars) ===
+    # ----------------------------------------------------------------------------------------------
+    # ENV-DEPENDENT (configurable via WORKER_DEFAULT_ prefixed env vars) 
+    # ----------------------------------------------------------------------------------------------
     name: str = "default_worker@%n"
     pool: Literal["prefork", "solo"] = "prefork"
     concurrency: int = Field(default=4, ge=1)
     prefetch_multiplier: int = Field(default=1, ge=1)
     log_level: LogLevel = "INFO"
 
+# ==================================================================================================
 
 default_worker_config = DefaultWorkerConfig()
+
+# ==================================================================================================

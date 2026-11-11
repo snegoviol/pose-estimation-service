@@ -1,18 +1,17 @@
-# Copyright (c) 2026 Ilya Snegov (aka Sierra Arn)
-
+# ==================================================================================================
+# 
+# Copyright (c) 2026 Ilya Snegov
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
-#     http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# ==================================================================================================
 # packages/benchmarks/src/benchmarks/core/parallel_pipeline.py
+# ==================================================================================================
+
 from typing import NamedTuple, Literal
 from pathlib import Path
 import time
@@ -29,6 +28,7 @@ from . import (
 )
 from .estimation_latency import ProcessingParams
 
+# ==================================================================================================
 
 class VisualizationParams(NamedTuple):
     """
@@ -62,6 +62,7 @@ class VisualizationParams(NamedTuple):
     ]
     batch_size: int
 
+# ==================================================================================================
 
 class VideoPipelineResult(NamedTuple):
     """
@@ -89,6 +90,7 @@ class VideoPipelineResult(NamedTuple):
     estimation_result: TaskResult | None
     visualization_result: TaskResult | None
 
+# ==================================================================================================
 
 class ParallelPipelineResult(NamedTuple):
     """
@@ -107,6 +109,7 @@ class ParallelPipelineResult(NamedTuple):
     total_wall_clock_time_ms: float
     total_summed_time_ms: float
 
+# ==================================================================================================
 
 async def process_single_video(
     client: httpx.AsyncClient,
@@ -190,6 +193,7 @@ async def process_single_video(
         visualization_result=visualization_result
     )
 
+# ==================================================================================================
 
 async def execute_benchmark(
     urls: ApiUrls,
@@ -263,3 +267,5 @@ async def execute_benchmark(
         total_wall_clock_time_ms=total_wall_clock_time_ms,
         total_summed_time_ms=total_summed_time_ms
     )
+
+# ==================================================================================================

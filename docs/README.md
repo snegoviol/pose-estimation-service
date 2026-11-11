@@ -1,6 +1,26 @@
+<!--    
+    ================================================================================================
+    
+    Copyright (c) 2026 Ilya Snegov
+    
+    Dedicated to the public domain under the Creative Commons
+    CC0 1.0 Universal Public Domain Dedication (the "Dedication").
+    You may obtain a copy of the Dedication at
+    
+    https://creativecommons.org/publicdomain/zero/1.0/legalcode.en
+
+    ================================================================================================
+    docs/README.md
+    ================================================================================================
+-->
+
 # Human Pose Estimation Service
 
 > *This directory holds the full technical documentation for the Human Pose Estimation Service. This file serves as its entry point: it gives a high-level overview of the service backed by a performance benchmark, then points to the file covering each layer of the system, from conceptual design to empirical performance.*
+
+<!--    
+    ================================================================================================
+-->
 
 ## I. Project Overview
 
@@ -32,6 +52,10 @@ End-to-end performance under concurrent load is summarized below using a paralle
 | Parallelism Ratio          | 6.36x      |
 
 To benchmark the service on your own hardware, run [benchmarks.parallel_pipeline](../packages/benchmarks/src/benchmarks/parallel_pipeline.py), or see [07-performance-benchmarks.md](07-performance-benchmarks.md) for the full ingestion, estimation, and parallel-pipeline results.
+
+<!--    
+    ================================================================================================
+-->
 
 ## II. C4 Container Diagram
 
@@ -80,6 +104,10 @@ flowchart LR
     wdef ---->|"report result"| broker
 ```
 
+<!--    
+    ================================================================================================
+-->
+
 ## III. Documentation Overview
 
 This section provides a structured guide to the documentation layout of the Human Pose Estimation Service. Each file focuses on a specific layer of abstraction, ranging from high-level conceptual design to low-level dependencies and empirical performance.
@@ -104,3 +132,7 @@ This section provides a structured guide to the documentation layout of the Huma
 
 - To review the empirical performance benchmarks that validate these decisions, see  
     [07-performance-benchmarks.md](07-performance-benchmarks.md).
+
+<!--    
+    ================================================================================================
+-->
